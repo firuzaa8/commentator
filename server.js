@@ -116,7 +116,29 @@ app.get("/scrape", function(req, res) {
         res.json(err);
       });
   });
+  app.delete("/articles/:id", function(req, res) {
+    //console.log(res);
+    //console.log(req);
+    // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
+    console.log("got to delete with id " + req.params.id);
+    db.Article.findOne({ _id: req.params.id })
+      // ..and populate all of the comment associated with it
+      //.deleteOne("comment")
+      .then(function(dbArticle) {
 
+        console.log(dbArticle)
+        db.Comment.findOneAndDelete({_id: dbArticle.comment}).then(function(deletedComment) { 
+          console.log(deletedComment);
+        });
+
+        // If we were able to successfully find an Article with the given id, send it back to the client
+        res.json({});
+        })
+      .catch(function(err) {
+        // If an error occurred, send it to the client
+        res.json(err);
+      });
+  });
   app.listen(PORT, function() {
     console.log("App running on port " + PORT + "!");
   });

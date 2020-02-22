@@ -7,37 +7,47 @@ $.getJSON("/articles", function (data) {
 
     var card = $("<div class = 'card'>").appendTo(accordion);
 
-    var cardHeader = $("<div class = 'card-header'>").appendTo(card);
+    var cardHeader = $("<div class = 'card-header' id = 'title'>").appendTo(card);
 
     var button = $("<button class='btn btn-link artButton' data-id='" + data[i]._id + "' type='button' data-toggle='collapse' data-target='#collapse-" + i + "' aria-expanded='false' aria-controls='collapse-" + i + "'>" + data[i].title + "</button>").appendTo(cardHeader);
     var collapse = $("<div id='collapse-" + i + "' class='collapse' aria-labelledby='headingOne' data-parent='#accordion'>").appendTo(card);
     var body = $("<div class = 'card-body'>" + data[i].title + "<br />" + data[i].link + "</div>").appendTo(collapse);
 
-    //"<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
+
   }
   $(".artButton").on("click", function () { 
     $("#comments").empty();
+    $("#commentsHistory").empty();
     var thisId = $(this).attr("data-id");
     $.ajax({
       method: "GET",
-      url: "/articles/:id" + thisId
+      url: "/articles/" + thisId
     }).then(function (data) {
-      for (i = 0; i<data.length; i++) {
-    var commentCard = $("<div class = 'card'>").appendTo($("#commentHistory"));
-    var commentBody = $("<div class = 'card-body'>" + data[i].title).appendTo(commentCard);
-    var commentText = $("<p class = 'card-text'>" + data[i].body + "</p>").appendTo(commentBody);
-    var deleteButton = $("<a href = '#' class = 'btn btn-primary'>Delete This Comment" + "</a>").appendTo(commentBody);
-   
-      };
-    });
+      console.log(data.comment)
+      if (data.comment) {
+        
+      var commentCard = $("<div class = 'card'>").appendTo($("#commentsHistory"));
+      var commentBody = $("<div class = 'card-body'> <h2>" + data.comment.title + "</h2></div>").appendTo(commentCard);
+      var commentText = $("<p class = 'card-text'>" + data.comment.body + "</p>").appendTo(commentBody);
+      var deleteButton = $("<a href = '#' class = 'btn btn-primary' id = 'delete'>Delete This Comment" + "</a>").appendTo(commentBody);
     
+      $("#delete").click(function() {
+        $.ajax({
+          method: "DELETE",
+          url: "/articles/" + thisId
+        }).then(function (data) {
+          $("#commentsHistory").empty();
+      });
+        
+      });
+      }  
     $.ajax({
       method: "GET",
       url: "/articles/" + thisId
     })
       // With that done, add the note information to the page
       .then(function (data) {
-        console.log(data);
+        //console.log(data);
         // The title of the article
         $("#comments").append("<h2>" + data.title + "</h2>");
         // An input to enter a new title
@@ -89,4 +99,4 @@ $(document).on("click", "#savecomment", function() {
 
 
 
-
+});
